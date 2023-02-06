@@ -75,9 +75,9 @@ jobs:
 
       - name: "Determine Flink binary url"
         run: |
-          binary_url=""
-          cache_binary=""
-          if [ ${{ inputs.flink_url}} = "" ]; then
+          binary_url=${{ inputs.flink_url }}
+          cache_binary=${{ inputs.cache_binary }}
+          if [ $binary_url = "" ]; then
             if [[ ${{ inputs.flink_version }} = *-SNAPSHOT ]]; then
               binary_url=https://s3.amazonaws.com/flink-nightly/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
               cache_binary = false
@@ -85,10 +85,9 @@ jobs:
               binary_url=https://dist.apache.org/repos/dist/release/flink/flink-${{ inputs.flink_version }}/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
               cache_binary = true
             fi
-          else
-            binary_url=${{ inputs.flink_url}}
-            cache_binary=${{ inputs.cache_binary }}
           fi
+          echo "binary_url=$binary_url"
+          echo "cache_binary=$cache_binary"
           echo "binary_url=$binary_url" >> $GITHUB_ENV
           echo "cache_binary=$cache_binary" >> $GITHUB_ENV
 
@@ -104,12 +103,12 @@ jobs:
         id: restore-cache-flink
         with:
           path: ${{ env.FLINK_CACHE_DIR }}
-          key: ${{ inputs.flink_url }}
+          key: ${{ env.binary_url }}
 
       - name: Download Flink binary
         working-directory: ${{ env.FLINK_CACHE_DIR }}
         if: steps.restore-cache-flink.outputs.cache-hit != 'true'
-        run: wget -q -c ${{ inputs.flink_url }} -O - | tar -xz
+        run: wget -q -c ${{ env.binary_url }} -O - | tar -xz
 
       - name: Cache Flink binary
         if: ${{ inputs.cache_flink_binary }}
@@ -117,4 +116,4 @@ jobs:
         id: cache-flink
         with:
           path: ${{ env.FLINK_CACHE_DIR }}
-          key: ${{ inputs.flink_url }}
+          key: ${{ env.binary_url }}
