@@ -76,9 +76,9 @@ jobs:
       - name: "Determine Flink binary url"
         run: |
           binary_url=${{ inputs.flink_url }}
-          cache_binary=${{ inputs.cache_binary }}
-          if [ $binary_url = "" ]; then
-            if [[ ${{ inputs.flink_version }} = *-SNAPSHOT ]]; then
+          cache_binary=${{ inputs.cache_flink_binary }}
+          if [ "$binary_url" = "" ]; then
+            if [[ ${{ "inputs.flink_version" }} = *-SNAPSHOT ]]; then
               binary_url=https://s3.amazonaws.com/flink-nightly/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
               cache_binary = false
             else
@@ -88,8 +88,8 @@ jobs:
           fi
           echo "binary_url=$binary_url"
           echo "cache_binary=$cache_binary"
-          echo "binary_url=$binary_url" >> $GITHUB_ENV
-          echo "cache_binary=$cache_binary" >> $GITHUB_ENV
+          echo "binary_url=$binary_url" >> ${GITHUB_ENV}
+          echo "cache_binary=$cache_binary" >> ${GITHUB_ENV}
 
       - name: "Print Flink binary url"
         run: echo "${{ env.binary_url }} / ${{ env.cache_binary }}"
