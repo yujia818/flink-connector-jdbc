@@ -78,7 +78,7 @@ jobs:
           binary_url=${{ inputs.flink_url }}
           cache_binary=${{ inputs.cache_flink_binary }}
           if [ "$binary_url" = "" ]; then
-            if [[ ${{ "inputs.flink_version" }} = *-SNAPSHOT ]]; then
+            if [[ "${{ inputs.flink_version }}" = *-SNAPSHOT ]]; then
               binary_url=https://s3.amazonaws.com/flink-nightly/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
               cache_binary = false
             else
