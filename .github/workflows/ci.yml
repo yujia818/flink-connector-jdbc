@@ -86,7 +86,7 @@ jobs:
 
       - name: Download Flink binary
         working-directory: ${{ env.FLINK_CACHE_DIR }}
-        if: steps.cache-flink.outputs.cache-hit != 'true'
+        if: steps.restore-cache-flink.outputs.cache-hit != 'true'
         run: wget -q -c ${{ inputs.flink_url }} -O - | tar -xz
 
       - name: Cache Flink binary
