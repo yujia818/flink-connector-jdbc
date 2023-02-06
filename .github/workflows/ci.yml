@@ -21,7 +21,7 @@ on:
     inputs:
       flink_url:
         description: "Url to Flink binary."
-        required: true
+        required: false
         type: string
       flink_version:
         description: "Flink version to test against."
@@ -29,7 +29,7 @@ on:
         type: string
       cache_flink_binary:
         description: "Whether to cache the Flink binary. Should be false for SNAPSHOT URLs, true otherwise."
-        required: true
+        required: false
         type: boolean
       timeout_global:
         description: "The timeout in minutes for the entire workflow."
@@ -72,6 +72,28 @@ jobs:
         uses: stCarolas/setup-maven@v4.2
         with:
           maven-version: 3.8.6
+
+      - name: "Determine Flink binary url"
+        run: |
+          binary_url=""
+          cache_binary=""
+          if [ ${{ inputs.flink_url}} = "" ]; then
+            if [[ ${{ inputs.flink_version }} = *-SNAPSHOT ]]; then
+              binary_url=https://s3.amazonaws.com/flink-nightly/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
+              cache_binary = false
+            else
+              binary_url=https://dist.apache.org/repos/dist/release/flink/flink-${{ inputs.flink_version }}/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
+              cache_binary = true
+            fi
+          else
+            binary_url=${{ inputs.flink_url}}
+            cache_binary=${{ inputs.cache_binary }}
+          fi
+          echo "binary_url=$binary_url" >> $GITHUB_ENV
+          echo "cache_binary=$cache_binary" >> $GITHUB_ENV
+
+      - name: "Print Flink binary url"
+        run: echo "${{ env.binary_url }} / ${{ env.cache_binary }}"
 
       - name: Create cache dirs
         run: mkdir -p ${{ env.FLINK_CACHE_DIR }}
