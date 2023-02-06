@@ -80,10 +80,10 @@ jobs:
           if [ "$binary_url" = "" ]; then
             if [[ "${{ inputs.flink_version }}" = *-SNAPSHOT ]]; then
               binary_url=https://s3.amazonaws.com/flink-nightly/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
-              cache_binary = false
+              cache_binary=false
             else
               binary_url=https://dist.apache.org/repos/dist/release/flink/flink-${{ inputs.flink_version }}/flink-${{ inputs.flink_version }}-bin-scala_2.12.tgz
-              cache_binary = true
+              cache_binary=true
             fi
           fi
           echo "binary_url=$binary_url"
