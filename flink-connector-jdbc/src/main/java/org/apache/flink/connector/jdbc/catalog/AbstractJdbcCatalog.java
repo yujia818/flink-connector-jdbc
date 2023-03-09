@@ -127,7 +127,7 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
                 throw new ValidationException(
                         String.format("Failed connecting to %s via JDBC.", defaultUrl), e);
             }
-            LOG.info("Catalog {} established connection to {}", getName(), defaultUrl);
+            LOG.info("Catalog123 {} established connection to {}", getName(), defaultUrl);
         }
     }
 
@@ -164,7 +164,7 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
         // We need to pass the database name as catalog parameter for retrieving primary keys by
         // full table identifier.
         ResultSet rs = metaData.getPrimaryKeys(database, schema, table);
-
+        LOG.info("rs: " + rs);
         Map<Integer, String> keySeqColumnName = new HashMap<>();
         String pkName = null;
         while (rs.next()) {
@@ -250,22 +250,34 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
 
         try (Connection conn = DriverManager.getConnection(dbUrl, username, pwd)) {
             DatabaseMetaData metaData = conn.getMetaData();
+            LOG.info("metaData: " + metaData.toString());
+            LOG.info("databaseName: " + databaseName);
+            LOG.info("tablePath: " + tablePath);
+            LOG.info("getSchemaName(tablePath): " + getSchemaName(tablePath));
+            LOG.info("getTableName(tablePath): " + getTableName(tablePath));
+            LOG.info("1");
             Optional<UniqueConstraint> primaryKey =
                     getPrimaryKey(
                             metaData,
                             databaseName,
                             getSchemaName(tablePath),
                             getTableName(tablePath));
-
+            LOG.info("2: " + primaryKey);
             PreparedStatement ps =
                     conn.prepareStatement(
-                            String.format("SELECT * FROM %s;", getSchemaTableName(tablePath)));
-
+                            String.format(
+                                    "SELECT * FROM %s;",
+                                    getSchemaName(tablePath)
+                                            + "."
+                                            + getTableNameWithQuote(tablePath)));
+            LOG.info("3: " + getSchemaName(tablePath));
+            LOG.info("3.1: " + getTableNameWithQuote(tablePath));
+            LOG.info("3.2: " + ps.toString());
             ResultSetMetaData resultSetMetaData = ps.getMetaData();
-
+            LOG.info("4");
             String[] columnNames = new String[resultSetMetaData.getColumnCount()];
             DataType[] types = new DataType[resultSetMetaData.getColumnCount()];
-
+            LOG.info("5");
             for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
                 columnNames[i - 1] = resultSetMetaData.getColumnName(i);
                 types[i - 1] = fromJDBCType(tablePath, resultSetMetaData, i);
@@ -273,18 +285,22 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
                     types[i - 1] = types[i - 1].notNull();
                 }
             }
-
+            LOG.info("6");
             Schema.Builder schemaBuilder = Schema.newBuilder().fromFields(columnNames, types);
             primaryKey.ifPresent(
                     pk -> schemaBuilder.primaryKeyNamed(pk.getName(), pk.getColumns()));
             Schema tableSchema = schemaBuilder.build();
-
+            LOG.info("7: " + tableSchema.toString());
             Map<String, String> props = new HashMap<>();
             props.put(CONNECTOR.key(), IDENTIFIER);
             props.put(URL.key(), dbUrl);
             props.put(USERNAME.key(), username);
             props.put(PASSWORD.key(), pwd);
-            props.put(TABLE_NAME.key(), getSchemaTableName(tablePath));
+            props.put(
+                    TABLE_NAME.key(),
+                    getSchemaName(tablePath) + "." + getTableNameWithQuote(tablePath));
+            LOG.info("8");
+            LOG.info("props: " + props.toString());
             return CatalogTable.of(tableSchema, null, Lists.newArrayList(), props);
         } catch (Exception e) {
             throw new CatalogException(
@@ -524,6 +540,10 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
 
     protected DataType fromJDBCType(ObjectPath tablePath, ResultSetMetaData metadata, int colIndex)
             throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    protected String getTableNameWithQuote(ObjectPath tablePath) {
         throw new UnsupportedOperationException();
     }
 

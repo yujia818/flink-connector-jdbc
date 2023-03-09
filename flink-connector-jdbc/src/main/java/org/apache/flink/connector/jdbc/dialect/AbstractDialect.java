@@ -19,6 +19,7 @@
 package org.apache.flink.connector.jdbc.dialect;
 
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.connector.jdbc.catalog.AbstractJdbcCatalog;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
@@ -26,6 +27,9 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.util.Preconditions;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -44,6 +48,8 @@ import static java.lang.String.format;
  */
 @PublicEvolving
 public abstract class AbstractDialect implements JdbcDialect {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcCatalog.class);
 
     @Override
     public void validate(RowType rowType) throws ValidationException {
@@ -120,14 +126,19 @@ public abstract class AbstractDialect implements JdbcDialect {
                         .collect(Collectors.joining(", "));
         String placeholders =
                 Arrays.stream(fieldNames).map(f -> ":" + f).collect(Collectors.joining(", "));
-        return "INSERT INTO "
-                + quoteIdentifier(tableName)
-                + "("
-                + columns
-                + ")"
-                + " VALUES ("
-                + placeholders
-                + ")";
+
+        String res =
+                "INSERT INTO "
+                        + quoteIdentifier(tableName)
+                        + "("
+                        + columns
+                        + ")"
+                        + " VALUES ("
+                        + placeholders
+                        + ")";
+
+        LOG.info("result: ", res);
+        return res;
     }
 
     /**
