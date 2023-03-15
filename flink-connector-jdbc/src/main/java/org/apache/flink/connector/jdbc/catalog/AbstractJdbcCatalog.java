@@ -267,7 +267,7 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
                     conn.prepareStatement(
                             String.format(
                                     "SELECT * FROM %s;",
-                                    getSchemaName(tablePath)
+                                    getSchemaNameWithQuote(tablePath)
                                             + "."
                                             + getTableNameWithQuote(tablePath)));
             LOG.info("3: " + getSchemaName(tablePath));
@@ -298,7 +298,7 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
             props.put(PASSWORD.key(), pwd);
             props.put(
                     TABLE_NAME.key(),
-                    getSchemaName(tablePath) + "." + getTableNameWithQuote(tablePath));
+                    getSchemaNameWithQuote(tablePath) + "." + getTableNameWithQuote(tablePath));
             LOG.info("8");
             LOG.info("props: " + props.toString());
             return CatalogTable.of(tableSchema, null, Lists.newArrayList(), props);
@@ -548,6 +548,10 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
     }
 
     protected String getTableName(ObjectPath tablePath) {
+        throw new UnsupportedOperationException();
+    }
+
+    protected String getSchemaNameWithQuote(ObjectPath tablePath) {
         throw new UnsupportedOperationException();
     }
 

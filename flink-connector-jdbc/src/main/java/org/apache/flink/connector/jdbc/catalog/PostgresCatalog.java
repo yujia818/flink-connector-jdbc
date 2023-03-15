@@ -173,6 +173,13 @@ public class PostgresCatalog extends AbstractJdbcCatalog {
     }
 
     @Override
+    protected String getSchemaNameWithQuote(ObjectPath tablePath) {
+        return "\""
+                + PostgresTablePath.fromFlinkTableName(tablePath.getObjectName()).getPgSchemaName()
+                + "\"";
+    }
+
+    @Override
     protected String getSchemaName(ObjectPath tablePath) {
         return PostgresTablePath.fromFlinkTableName(tablePath.getObjectName()).getPgSchemaName();
     }
