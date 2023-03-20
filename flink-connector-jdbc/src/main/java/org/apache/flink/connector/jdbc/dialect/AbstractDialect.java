@@ -179,11 +179,24 @@ public abstract class AbstractDialect implements JdbcDialect {
      */
     @Override
     public String getDeleteStatement(String tableName, String[] conditionFields) {
+        LOG.info("tableName: " + tableName);
+        LOG.info("conditionFields: " + conditionFields);
         String conditionClause =
                 Arrays.stream(conditionFields)
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
-        return "DELETE FROM " + quoteIdentifier(tableName) + " WHERE " + conditionClause;
+        LOG.info(
+                "delete: "
+                        + "DELETE FROM "
+                        + quoteIdentifier(tableName)
+                        + " WHERE "
+                        + conditionClause);
+        // return null;
+        return "DELETE FROM "
+                + quoteIdentifier(tableName)
+                + " WHERE "
+                + conditionClause
+                + " AND id = 'safas'";
     }
 
     /**
