@@ -122,7 +122,7 @@ public abstract class AbstractDialect implements JdbcDialect {
     public String getInsertIntoStatement(String tableName, String[] fieldNames) {
         String columns =
                 Arrays.stream(fieldNames)
-                        .map(this::quoteIdentifier)
+                        .map(this::fieldQuoteIdentifier)
                         .collect(Collectors.joining(", "));
         String placeholders =
                 Arrays.stream(fieldNames).map(f -> ":" + f).collect(Collectors.joining(", "));
@@ -155,11 +155,11 @@ public abstract class AbstractDialect implements JdbcDialect {
             String tableName, String[] fieldNames, String[] conditionFields) {
         String setClause =
                 Arrays.stream(fieldNames)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .map(f -> format("%s = :%s", fieldQuoteIdentifier(f), f))
                         .collect(Collectors.joining(", "));
         String conditionClause =
                 Arrays.stream(conditionFields)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .map(f -> format("%s = :%s", fieldQuoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
         return "UPDATE "
                 + quoteIdentifier(tableName)
@@ -183,14 +183,9 @@ public abstract class AbstractDialect implements JdbcDialect {
         LOG.info("conditionFields: " + conditionFields);
         String conditionClause =
                 Arrays.stream(conditionFields)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .map(f -> format("%s = :%s", fieldQuoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
-        LOG.info(
-                "delete: "
-                        + "DELETE FROM "
-                        + quoteIdentifier(tableName)
-                        + " WHERE "
-                        + conditionClause);
+
         // return null;
         return "DELETE FROM "
                 + quoteIdentifier(tableName)
@@ -213,11 +208,11 @@ public abstract class AbstractDialect implements JdbcDialect {
             String tableName, String[] selectFields, String[] conditionFields) {
         String selectExpressions =
                 Arrays.stream(selectFields)
-                        .map(this::quoteIdentifier)
+                        .map(this::fieldQuoteIdentifier)
                         .collect(Collectors.joining(", "));
         String fieldExpressions =
                 Arrays.stream(conditionFields)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .map(f -> format("%s = :%s", fieldQuoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
         return "SELECT "
                 + selectExpressions
@@ -239,7 +234,7 @@ public abstract class AbstractDialect implements JdbcDialect {
     public String getRowExistsStatement(String tableName, String[] conditionFields) {
         String fieldExpressions =
                 Arrays.stream(conditionFields)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .map(f -> format("%s = :%s", fieldQuoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
         return "SELECT 1 FROM " + quoteIdentifier(tableName) + " WHERE " + fieldExpressions;
     }

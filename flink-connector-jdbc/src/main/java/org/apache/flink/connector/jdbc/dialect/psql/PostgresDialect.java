@@ -24,6 +24,9 @@ import org.apache.flink.connector.jdbc.internal.converter.PostgresRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -32,6 +35,8 @@ import java.util.stream.Collectors;
 
 /** JDBC dialect for PostgreSQL. */
 public class PostgresDialect extends AbstractDialect {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(PostgresDialect.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -66,12 +71,23 @@ public class PostgresDialect extends AbstractDialect {
             String tableName, String[] fieldNames, String[] uniqueKeyFields) {
         String uniqueColumns =
                 Arrays.stream(uniqueKeyFields)
-                        .map(this::quoteIdentifier)
+                        .map(this::fieldQuoteIdentifier)
                         .collect(Collectors.joining(", "));
         String updateClause =
                 Arrays.stream(fieldNames)
-                        .map(f -> quoteIdentifier(f) + "=EXCLUDED." + quoteIdentifier(f))
+                        .map(f -> fieldQuoteIdentifier(f) + "=EXCLUDED." + fieldQuoteIdentifier(f))
                         .collect(Collectors.joining(", "));
+
+        LOG.info(
+                "statement: "
+                        + Optional.of(
+                                getInsertIntoStatement(tableName, fieldNames)
+                                        + " ON CONFLICT ("
+                                        + uniqueColumns
+                                        + ")"
+                                        + " DO UPDATE SET "
+                                        + updateClause));
+
         return Optional.of(
                 getInsertIntoStatement(tableName, fieldNames)
                         + " ON CONFLICT ("
@@ -84,6 +100,11 @@ public class PostgresDialect extends AbstractDialect {
     @Override
     public String quoteIdentifier(String identifier) {
         return identifier;
+    }
+
+    @Override
+    public String fieldQuoteIdentifier(String identifier) {
+        return "\"" + identifier + "\"";
     }
 
     @Override

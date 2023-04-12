@@ -58,6 +58,11 @@ class DerbyDialect extends AbstractDialect {
     }
 
     @Override
+    public String fieldQuoteIdentifier(String identifier) {
+        return identifier;
+    }
+
+    @Override
     public String dialectName() {
         return "Derby";
     }

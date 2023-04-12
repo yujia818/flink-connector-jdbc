@@ -71,6 +71,11 @@ public class MySqlDialect extends AbstractDialect {
         return "`" + identifier + "`";
     }
 
+    @Override
+    public String fieldQuoteIdentifier(String identifier) {
+        return "`" + identifier + "`";
+    }
+
     /**
      * Mysql upsert query use DUPLICATE KEY UPDATE.
      *

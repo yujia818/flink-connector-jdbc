@@ -71,6 +71,11 @@ class OracleDialect extends AbstractDialect {
     }
 
     @Override
+    public String fieldQuoteIdentifier(String identifier) {
+        return "\"" + identifier + "\"";
+    }
+
+    @Override
     public Optional<String> getUpsertStatement(
             String tableName, String[] fieldNames, String[] uniqueKeyFields) {
 

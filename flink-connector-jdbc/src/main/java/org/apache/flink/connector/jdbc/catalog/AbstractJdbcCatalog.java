@@ -72,7 +72,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.PASSWORD;
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.TABLE_NAME;
@@ -280,7 +279,7 @@ public abstract class AbstractJdbcCatalog extends AbstractCatalog {
             DataType[] types = new DataType[resultSetMetaData.getColumnCount()];
             LOG.info("5");
             for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
-                columnNames[i - 1] =  "\"" + resultSetMetaData.getColumnName(i) + "\"";
+                columnNames[i - 1] = resultSetMetaData.getColumnName(i);
                 types[i - 1] = fromJDBCType(tablePath, resultSetMetaData, i);
                 if (resultSetMetaData.isNullable(i) == ResultSetMetaData.columnNoNulls) {
                     types[i - 1] = types[i - 1].notNull();

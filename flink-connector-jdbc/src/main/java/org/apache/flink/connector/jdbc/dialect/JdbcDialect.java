@@ -84,6 +84,8 @@ public interface JdbcDialect extends Serializable {
      */
     String quoteIdentifier(String identifier);
 
+    String fieldQuoteIdentifier(String identifier);
+
     /**
      * Constructs the dialects upsert statement if supported; such as MySQL's {@code DUPLICATE KEY
      * UPDATE}, or PostgreSQL's {@code ON CONFLICT... DO UPDATE SET..}. If supported, the returned
